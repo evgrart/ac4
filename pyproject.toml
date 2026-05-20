@@ -1,0 +1,20 @@
+[project]
+name = "acs-lab4"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "Lab 4 toolchain: assembler, binary ISA and microcoded processor model."
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RET", "ARG"]
+ignore = [
+    "D",
+    "T201",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
