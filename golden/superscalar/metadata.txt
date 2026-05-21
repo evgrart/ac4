@@ -1,0 +1,4 @@
+source = superscalar.asm
+ticks = 37
+instructions = 7
+halt_reason = halt instruction

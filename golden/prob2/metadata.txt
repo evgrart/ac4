@@ -1,0 +1,4 @@
+source = prob2.asm
+ticks = 1512
+instructions = 197
+halt_reason = halt instruction

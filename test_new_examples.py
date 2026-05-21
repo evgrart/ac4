@@ -37,6 +37,7 @@ def main() -> int:
     ok &= check_exact("hello_user_name.asm", "Alice\n", "What is your name?\nHello, Alice!\n")
     ok &= check_exact("sort.asm", "3\n3 1 2\n", "1 2 3 \n")
     ok &= check_exact("uint64.asm", "100000 200000\n", "300000\n")
+    ok &= check_exact("uint64.asm", "4294967295 1\n", "1:0\n")
     return 0 if ok else 1
 
 

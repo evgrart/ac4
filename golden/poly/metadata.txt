@@ -1,0 +1,4 @@
+source = poly.asm
+ticks = 371
+instructions = 48
+halt_reason = halt instruction

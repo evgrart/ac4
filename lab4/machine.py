@@ -116,13 +116,15 @@ class Machine:
         self.trace: list[str] = []
         self._fetched_header = 0
         self._fetched_address = 0
+        self._fetched_words: list[int] = []
         self._current: Decoded | None = None
         self._paired: Decoded | None = None
         self._super_note = ""
+        self._micro_queue: list[str] = []
 
     def run(self, max_ticks: int = 100_000) -> str:
         while not self.halted and self.tick_count < max_ticks:
-            self.step_instruction()
+            self.step_tick()
         if self.tick_count >= max_ticks and not self.halted:
             self.halted = True
             self.halt_reason = "max_ticks"
@@ -131,14 +133,17 @@ class Machine:
     def step_instruction(self) -> None:
         if self.halted:
             return
+        completed_before = self.instruction_count
+        while not self.halted and self.instruction_count == completed_before:
+            self.step_tick()
+
+    def step_tick(self) -> None:
+        if self.halted:
+            return
         try:
-            for micro_op in COMMON_CYCLE:
-                self._execute_micro(micro_op)
-            current = self._current
-            if current is None:
-                raise MachineError("decode did not produce instruction")
-            for micro_op in MICROPROGRAMS[current.instruction.opcode]:
-                self._execute_micro(micro_op)
+            if not self._micro_queue:
+                self._micro_queue.extend(COMMON_CYCLE)
+            self._execute_micro(self._micro_queue.pop(0))
         except InputExhausted as error:
             self.halted = True
             self.halt_reason = str(error)
@@ -147,48 +152,69 @@ class Machine:
     def _execute_micro(self, micro_op: str) -> None:
         self.mpc += 1
         details = ""
-        if micro_op == "FETCH":
+        if micro_op == "FETCH_HEADER":
             self._fetched_address = self.pc
             self._fetched_header = self.memory.read_word(self.pc)
             self.ir = self._fetched_header
             self.pc = to_u32(self.pc + WORD_BYTES)
-            details = f"addr=0x{self._fetched_address:08X} header=0x{self.ir:08X}"
+            self._fetched_words = [self._fetched_header]
+            operand_count = (self._fetched_header >> 8) & 0xFF
+            self._micro_queue[0:0] = ["FETCH_OPERAND"] * operand_count + ["DECODE"]
+            details = f"addr=0x{self._fetched_address:08X} header=0x{self.ir:08X} operands={operand_count}"
+        elif micro_op == "FETCH_OPERAND":
+            operand_index = len(self._fetched_words)
+            word = self.memory.read_word(self.pc)
+            self._fetched_words.append(word)
+            self.pc = to_u32(self.pc + WORD_BYTES)
+            details = f"operand[{operand_index}]=0x{word:08X}"
         elif micro_op == "DECODE":
-            self._current = self._decode_from_header(self._fetched_address, self._fetched_header)
+            self._current = self._decode_from_words(self._fetched_address, self._fetched_words)
             self._paired = self._try_pair(self._current)
+            self._micro_queue[0:0] = list(MICROPROGRAMS[self._current.instruction.opcode])
             details = format_instruction(self._current.instruction)
             if self._paired is not None:
                 details += f" || {format_instruction(self._paired.instruction)}"
             elif self._super_note:
                 details += f" ; {self._super_note}"
+        elif micro_op == "COMMIT":
+            details = self._commit_current()
         else:
-            current = self._current
-            if current is None:
-                raise MachineError("execute without current instruction")
-            pair = self._paired
-            if pair is not None:
-                self._execute_one(current.instruction)
-                self._execute_one(pair.instruction)
-                self.instruction_count += 2
-                left = format_instruction(current.instruction)
-                right = format_instruction(pair.instruction)
-                details = f"parallel: {left} || {right}"
-            else:
-                self._execute_one(current.instruction)
-                self.instruction_count += 1
-                details = format_instruction(current.instruction)
-            self._current = None
-            self._paired = None
+            details = self._describe_micro_stage(micro_op)
         self._log(micro_op, details)
 
-    def _decode_from_header(self, address: int, header: int) -> Decoded:
-        count = (header >> 8) & 0xFF
-        words = [header]
-        for _ in range(count):
-            words.append(self.memory.read_word(self.pc))
-            self.pc = to_u32(self.pc + WORD_BYTES)
+    def _decode_from_words(self, address: int, words: list[int]) -> Decoded:
         instruction = decode_instruction(words, address=address)
-        return Decoded(instruction, words)
+        return Decoded(instruction, list(words))
+
+    def _describe_micro_stage(self, micro_op: str) -> str:
+        current = self._current
+        if current is None:
+            raise MachineError("micro-op without current instruction")
+        details = f"{micro_op}: {format_instruction(current.instruction)}"
+        if self._paired is not None:
+            details += f" || {format_instruction(self._paired.instruction)}"
+        return details
+
+    def _commit_current(self) -> str:
+        current = self._current
+        if current is None:
+            raise MachineError("commit without current instruction")
+        pair = self._paired
+        if pair is not None:
+            self._execute_one(current.instruction)
+            self._execute_one(pair.instruction)
+            self.instruction_count += 2
+            left = format_instruction(current.instruction)
+            right = format_instruction(pair.instruction)
+            details = f"parallel: {left} || {right}"
+        else:
+            self._execute_one(current.instruction)
+            self.instruction_count += 1
+            details = format_instruction(current.instruction)
+        self._current = None
+        self._paired = None
+        self._fetched_words = []
+        return details
 
     def _peek_decode(self, address: int) -> Decoded:
         header = self.memory.read_word(address)

@@ -1,0 +1,4 @@
+source = uint64.asm
+ticks = 2402
+instructions = 313
+halt_reason = halt instruction

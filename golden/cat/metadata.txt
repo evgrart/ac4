@@ -1,0 +1,4 @@
+source = cat.asm
+ticks = 193
+instructions = 28
+halt_reason = halt instruction

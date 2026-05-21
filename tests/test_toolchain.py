@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from lab4.assembler import Assembler, Preprocessor, SourceLine
+from lab4.golden import GOLDEN_CASES
 from lab4.machine import Machine
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,11 +89,63 @@ class ToolchainTest(unittest.TestCase):
         self.assertEqual(machine.memory.output_text(), "1 2 3 \n")
 
     def test_uint64_addition(self) -> None:
-        # Adding 100000 + 200000 = 300000
         machine = run_example("uint64.asm", "100000 200000\n")
-        # Basic check that it doesn't crash and produces output
-        output = machine.memory.output_text()
-        self.assertTrue(len(output) > 0)
+        self.assertEqual(machine.memory.output_text(), "300000\n")
+
+    def test_uint64_addition_with_carry(self) -> None:
+        machine = run_example("uint64.asm", "4294967295 1\n")
+        self.assertEqual(machine.memory.output_text(), "1:0\n")
+
+    def test_step_tick_can_pause_between_micro_ops(self) -> None:
+        lines = [
+            SourceLine(".org 0", 1, "<test>"),
+            SourceLine("MOV R0, #7", 2, "<test>"),
+            SourceLine("HALT", 3, "<test>"),
+        ]
+        image = Assembler().assemble_lines(lines)
+        machine = Machine(image.binary)
+
+        machine.step_tick()
+        self.assertEqual(machine.tick_count, 1)
+        self.assertEqual(machine.instruction_count, 0)
+        self.assertIn("FETCH_HEADER", machine.trace[-1])
+
+        machine.step_tick()
+        self.assertEqual(machine.instruction_count, 0)
+        self.assertIn("FETCH_OPERAND", machine.trace[-1])
+
+        machine.step_instruction()
+        self.assertEqual(machine.instruction_count, 1)
+        self.assertEqual(machine.regs[0], 7)
+        self.assertTrue(any("READ_SOURCE" in line for line in machine.trace))
+        self.assertTrue(any("WRITE_DESTINATION" in line for line in machine.trace))
+
+    def test_golden_artifacts_are_current(self) -> None:
+        for case in GOLDEN_CASES:
+            with self.subTest(case=case.name):
+                case_dir = ROOT / "golden" / case.name
+                source = ROOT / "examples" / case.source
+                image = Assembler().assemble_file(source)
+
+                self.assertEqual(
+                    (case_dir / "source.asm").read_text(encoding="utf-8"),
+                    source.read_text(encoding="utf-8"),
+                )
+                self.assertEqual((case_dir / "input.txt").read_text(encoding="utf-8"), case.input_text)
+                self.assertEqual((case_dir / "output.txt").read_text(encoding="utf-8"), case.expected_output)
+                self.assertEqual((case_dir / "program.bin").read_bytes(), image.binary)
+                self.assertEqual((case_dir / "listing.hex").read_text(encoding="utf-8"), image.listing)
+                self.assertIn("TICK=", (case_dir / "trace.log").read_text(encoding="utf-8"))
+                self.assertEqual((ROOT / "build" / f"{case.name}.bin").read_bytes(), image.binary)
+                self.assertEqual((ROOT / "build" / f"{case.name}.hex").read_text(encoding="utf-8"), image.listing)
+                self.assertEqual((ROOT / "build" / f"{case.name}.in").read_text(encoding="utf-8"), case.input_text)
+                self.assertEqual(
+                    (ROOT / "build" / f"{case.name}.out").read_text(encoding="utf-8"),
+                    case.expected_output,
+                )
+                self.assertIn("TICK=", (ROOT / "build" / f"{case.name}.log").read_text(encoding="utf-8"))
+                if case.include_scalar_trace:
+                    self.assertIn("TICK=", (case_dir / "trace.scalar.log").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,4 @@
+source = hello_user_name.asm
+ticks = 2093
+instructions = 282
+halt_reason = halt instruction

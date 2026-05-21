@@ -1,0 +1,4 @@
+source = sort.asm
+ticks = 2856
+instructions = 372
+halt_reason = halt instruction
