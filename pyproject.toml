@@ -3,6 +3,7 @@ name = "acs-lab4"
 version = "0.1.0"
 requires-python = ">=3.11"
 description = "Lab 4 toolchain: assembler, binary ISA and microcoded processor model."
+packages = ["lab4"]
 
 [tool.ruff]
 line-length = 120
