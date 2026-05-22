@@ -1,0 +1,30 @@
+name: Lab 4 CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install ruff mypy pytest
+      
+      - name: Lint with ruff
+        run: ruff check lab4/ tests/ --select E,F,I,UP,B,SIM,C4,RET,ARG
+      
+      - name: Type check with mypy
+        run: mypy lab4/ tests/ --strict
+      
+      - name: Run tests with pytest
+        run: pytest tests/test_toolchain.py -v
