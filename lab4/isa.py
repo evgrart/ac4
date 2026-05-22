@@ -1,3 +1,12 @@
+"""ISA definition and instruction representation for ACS Lab 4.
+
+Defines:
+- Instruction encoding format with variable-length support
+- Register and operand types
+- Opcode definitions
+- Constants for I/O addressing and memory layout
+"""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -81,12 +90,16 @@ FLAG_C = 1 << 3
 
 @dataclass(frozen=True)
 class Operand:
+    """Single operand in an instruction."""
+
     kind: OperandKind
     payload: int
 
 
 @dataclass(frozen=True)
 class Instruction:
+    """Decoded instruction with opcode and operands."""
+
     opcode: Opcode
     operands: tuple[Operand, ...]
     address: int = 0
@@ -94,14 +107,17 @@ class Instruction:
 
     @property
     def size(self) -> int:
+        """Size in bytes including header and all operands."""
         return WORD_BYTES * (1 + len(self.operands))
 
 
 def to_u32(value: int) -> int:
+    """Convert to 32-bit unsigned integer."""
     return value & U32_MASK
 
 
 def to_s32(value: int) -> int:
+    """Convert to 32-bit signed integer (two's complement)."""
     value &= U32_MASK
     if value & S32_SIGN:
         return value - (1 << WORD_BITS)
@@ -109,12 +125,14 @@ def to_s32(value: int) -> int:
 
 
 def encode_s24(value: int) -> int:
+    """Encode 24-bit signed operand payload."""
     if not -(1 << 23) <= value < (1 << 24):
         raise ValueError(f"operand payload out of 24-bit range: {value}")
     return value & U24_MASK
 
 
 def decode_s24(value: int) -> int:
+    """Decode 24-bit signed operand payload (two's complement)."""
     value &= U24_MASK
     if value & S24_SIGN:
         return value - (1 << 24)

@@ -1,3 +1,9 @@
+"""Microcode definitions for ACS Lab 4 processor.
+
+Maps instructions to their microprogram sequences, defining the micro-operations
+performed during instruction execution.
+"""
+
 from __future__ import annotations
 
 from lab4.isa import Opcode

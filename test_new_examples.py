@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Quick manual checks for the added example programs."""
+"""Manual test runner for example programs.
+
+Quickly verifies that example programs produce expected outputs.
+Serves as a smoke test before committing changes.
+"""
 
 from pathlib import Path
 

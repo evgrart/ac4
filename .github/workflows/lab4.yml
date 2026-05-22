@@ -24,18 +24,24 @@ jobs:
         run: ruff format --check lab4 tests test_new_examples.py check_syntax.py
 
       - name: Lint with ruff
-        run: ruff check lab4 tests test_new_examples.py check_syntax.py
+        run: ruff check lab4 tests test_new_examples.py check_syntax.py --select E,F,I,UP,B,SIM,C4,RET,ARG
 
       - name: Type check with mypy
-        run: mypy lab4 tests test_new_examples.py check_syntax.py
+        run: mypy lab4 tests test_new_examples.py check_syntax.py --strict
 
       - name: Verify generated golden artifacts
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m lab4.golden
           git diff --exit-code build golden
 
       - name: Run unittest suite
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: python -m unittest discover -s tests -v
 
       - name: Run pytest suite
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: pytest tests/test_toolchain.py -v

@@ -1,3 +1,11 @@
+"""Assembler and preprocessor for ACS Lab 4 assembly language.
+
+Provides a two-pass assembler that processes assembly source files with support for:
+- Macros, constants, and conditional compilation
+- Variable-length CISC instructions
+- Symbol resolution and listing generation
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -52,6 +60,7 @@ _CONST_RE = re.compile(r"^(?:\.const|\.equ|%define)\s+([A-Za-z_][\w.]*)\s+(.+)$"
 
 
 def strip_comment(line: str) -> str:
+    """Remove comment from assembly line, preserving quoted strings."""
     quoted = False
     escaped = False
     result: list[str] = []
@@ -75,6 +84,7 @@ def strip_comment(line: str) -> str:
 
 
 def split_operands(text: str) -> list[str]:
+    """Split operand list respecting brackets and quoted strings."""
     operands: list[str] = []
     current: list[str] = []
     quoted = False
@@ -112,6 +122,7 @@ def split_operands(text: str) -> list[str]:
 
 
 def unescape_string(text: str) -> bytes:
+    """Parse and unescape a string literal to UTF-8 bytes."""
     try:
         value = ast.literal_eval(text)
     except (SyntaxError, ValueError) as error:
@@ -122,6 +133,10 @@ def unescape_string(text: str) -> bytes:
 
 
 def eval_expr(expr: str, symbols: dict[str, int]) -> int:
+    """Evaluate an assembly expression with symbol resolution.
+
+    Supports integer literals, symbol names, arithmetic, bitwise operators, and single comparisons.
+    """
     expr = expr.strip()
     if not expr:
         raise AssemblerError("empty expression")
@@ -192,6 +207,8 @@ def eval_expr(expr: str, symbols: dict[str, int]) -> int:
 
 
 class Preprocessor:
+    """Handles macros, constants, and conditional compilation."""
+
     def __init__(self) -> None:
         self.constants = default_symbols()
         self.macros: dict[str, tuple[list[str], list[str]]] = {}
@@ -294,6 +311,12 @@ class Preprocessor:
 
 
 class Assembler:
+    """Two-pass assembler for ACS Lab 4 assembly language.
+
+    First pass: resolves labels and calculates addresses.
+    Second pass: generates binary code with symbol substitution.
+    """
+
     def __init__(self) -> None:
         self.symbols = default_symbols()
         self.statements: list[Statement] = []

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Assemble example programs to verify syntax."""
+"""Syntax check for example programs.
+
+Assembles selected example programs to verify they compile without errors.
+Used as a quick validation step before running the full test suite.
+"""
 
 from pathlib import Path
 

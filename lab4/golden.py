@@ -1,3 +1,12 @@
+"""Golden test generation for ACS Lab 4.
+
+Generates and validates golden test artifacts including:
+- Compiled binaries and listings
+- Symbol tables
+- Compact and full execution traces
+- Metadata and expected outputs
+"""
+
 from __future__ import annotations
 
 import argparse

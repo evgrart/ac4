@@ -1,3 +1,14 @@
+"""Micro-tick processor model for ACS Lab 4.
+
+Simulates:
+- Memory with little-endian byte-addressable words
+- Register file and ALU operations
+- Stack and branch logic
+- Memory-mapped I/O (status, input, output)
+- Superscalar execution for independent instructions
+- Comprehensive execution trace with micro-tick accuracy
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -43,6 +54,11 @@ class Decoded:
 
 
 class Memory:
+    """Byte-addressed memory with memory-mapped I/O.
+
+    Handles reading/writing with little-endian word packing and stream I/O.
+    """
+
     def __init__(self, image: bytes, input_text: str = "") -> None:
         self._bytes: dict[int, int] = dict(enumerate(image))
         self.input_buffer = list(input_text.encode("utf-8"))
@@ -90,6 +106,12 @@ class Memory:
 
 
 class Machine:
+    """Micro-tick processor model.
+
+    Executes binary program with superscalar support, comprehensive tracing,
+    and deterministic tick-accurate execution.
+    """
+
     def __init__(
         self,
         image: bytes,
