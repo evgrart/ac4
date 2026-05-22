@@ -8,6 +8,8 @@ from lab4.assembler import Assembler, ProgramImage
 from lab4.machine import Machine
 
 ROOT = Path(__file__).resolve().parents[1]
+TRACE_HEAD = 60
+TRACE_TAIL = 40
 
 
 @dataclass(frozen=True)
@@ -35,6 +37,22 @@ def symbols_text(image: ProgramImage) -> str:
     return "".join(f"{name} = 0x{value:X}\n" for name, value in image.symbols.items())
 
 
+def trace_text(trace: list[str]) -> str:
+    return "\n".join(trace) + "\n"
+
+
+def compact_trace_text(trace: list[str]) -> str:
+    if len(trace) <= TRACE_HEAD + TRACE_TAIL:
+        return trace_text(trace)
+    omitted = len(trace) - TRACE_HEAD - TRACE_TAIL
+    lines = [
+        *trace[:TRACE_HEAD],
+        f"... omitted {omitted} ticks; full trace is stored in build/*.log ...",
+        *trace[-TRACE_TAIL:],
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def write_case(case: GoldenCase, *, golden_root: Path, build_root: Path) -> None:
     source_path = ROOT / "examples" / case.source
     image = Assembler().assemble_file(source_path)
@@ -53,7 +71,7 @@ def write_case(case: GoldenCase, *, golden_root: Path, build_root: Path) -> None
     (case_dir / "program.bin").write_bytes(image.binary)
     (case_dir / "listing.hex").write_text(image.listing, encoding="utf-8")
     (case_dir / "symbols.txt").write_text(symbols_text(image), encoding="utf-8")
-    (case_dir / "trace.log").write_text("\n".join(machine.trace) + "\n", encoding="utf-8")
+    (case_dir / "trace.log").write_text(compact_trace_text(machine.trace), encoding="utf-8")
     (case_dir / "metadata.txt").write_text(
         f"source = {case.source}\n"
         f"ticks = {machine.tick_count}\n"
@@ -67,15 +85,15 @@ def write_case(case: GoldenCase, *, golden_root: Path, build_root: Path) -> None
     (build_root / f"{case.name}.sym").write_text(symbols_text(image), encoding="utf-8")
     (build_root / f"{case.name}.in").write_text(case.input_text, encoding="utf-8")
     (build_root / f"{case.name}.out").write_text(output, encoding="utf-8")
-    (build_root / f"{case.name}.log").write_text("\n".join(machine.trace) + "\n", encoding="utf-8")
+    (build_root / f"{case.name}.log").write_text(trace_text(machine.trace), encoding="utf-8")
     if case.name == "prob2":
-        (build_root / "prob2.verify.log").write_text("\n".join(machine.trace) + "\n", encoding="utf-8")
+        (build_root / "prob2.verify.log").write_text(trace_text(machine.trace), encoding="utf-8")
 
     if case.include_scalar_trace:
         scalar = Machine(image.binary, case.input_text, superscalar=False)
         scalar.run()
-        (case_dir / "trace.scalar.log").write_text("\n".join(scalar.trace) + "\n", encoding="utf-8")
-        (build_root / f"{case.name}.scalar.log").write_text("\n".join(scalar.trace) + "\n", encoding="utf-8")
+        (case_dir / "trace.scalar.log").write_text(compact_trace_text(scalar.trace), encoding="utf-8")
+        (build_root / f"{case.name}.scalar.log").write_text(trace_text(scalar.trace), encoding="utf-8")
 
 
 def generate_golden(*, golden_root: Path, build_root: Path) -> None:

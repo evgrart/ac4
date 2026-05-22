@@ -2,31 +2,40 @@ name: Lab 4 CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: "3.11"
+
       - name: Install dependencies
         run: pip install ruff mypy pytest
-      
+
+      - name: Check formatting
+        run: ruff format --check lab4 tests test_new_examples.py check_syntax.py
+
       - name: Lint with ruff
-        run: ruff check lab4/ tests/ --select E,F,I,UP,B,SIM,C4,RET,ARG
-      
+        run: ruff check lab4 tests test_new_examples.py check_syntax.py
+
       - name: Type check with mypy
-        run: mypy lab4/ tests/ --strict
-      
-      - name: Run tests with pytest
-        env:
-          PYTHONPATH: /home/runner/work/ac4/ac4
+        run: mypy lab4 tests test_new_examples.py check_syntax.py
+
+      - name: Verify generated golden artifacts
+        run: |
+          python -m lab4.golden
+          git diff --exit-code build golden
+
+      - name: Run unittest suite
+        run: python -m unittest discover -s tests -v
+
+      - name: Run pytest suite
         run: pytest tests/test_toolchain.py -v

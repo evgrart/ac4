@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from lab4.assembler import Assembler, Preprocessor, SourceLine
-from lab4.golden import GOLDEN_CASES
+from lab4.golden import GOLDEN_CASES, compact_trace_text, trace_text
 from lab4.machine import Machine
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -135,7 +135,15 @@ class ToolchainTest(unittest.TestCase):
                 self.assertEqual((case_dir / "output.txt").read_text(encoding="utf-8"), case.expected_output)
                 self.assertEqual((case_dir / "program.bin").read_bytes(), image.binary)
                 self.assertEqual((case_dir / "listing.hex").read_text(encoding="utf-8"), image.listing)
-                self.assertIn("TICK=", (case_dir / "trace.log").read_text(encoding="utf-8"))
+                machine = Machine(image.binary, case.input_text)
+                self.assertEqual(machine.run(), case.expected_output)
+                golden_trace = (case_dir / "trace.log").read_text(encoding="utf-8")
+                build_trace = (ROOT / "build" / f"{case.name}.log").read_text(encoding="utf-8")
+                self.assertEqual(golden_trace, compact_trace_text(machine.trace))
+                self.assertEqual(build_trace, trace_text(machine.trace))
+                self.assertIn("TICK=", golden_trace)
+                self.assertIn("TICK=", build_trace)
+                self.assertLessEqual(len(golden_trace.splitlines()), 101)
                 self.assertEqual((ROOT / "build" / f"{case.name}.bin").read_bytes(), image.binary)
                 self.assertEqual((ROOT / "build" / f"{case.name}.hex").read_text(encoding="utf-8"), image.listing)
                 self.assertEqual((ROOT / "build" / f"{case.name}.in").read_text(encoding="utf-8"), case.input_text)
@@ -143,9 +151,17 @@ class ToolchainTest(unittest.TestCase):
                     (ROOT / "build" / f"{case.name}.out").read_text(encoding="utf-8"),
                     case.expected_output,
                 )
-                self.assertIn("TICK=", (ROOT / "build" / f"{case.name}.log").read_text(encoding="utf-8"))
                 if case.include_scalar_trace:
-                    self.assertIn("TICK=", (case_dir / "trace.scalar.log").read_text(encoding="utf-8"))
+                    scalar = Machine(image.binary, case.input_text, superscalar=False)
+                    scalar.run()
+                    self.assertEqual(
+                        (case_dir / "trace.scalar.log").read_text(encoding="utf-8"),
+                        compact_trace_text(scalar.trace),
+                    )
+                    self.assertEqual(
+                        (ROOT / "build" / f"{case.name}.scalar.log").read_text(encoding="utf-8"),
+                        trace_text(scalar.trace),
+                    )
 
 
 if __name__ == "__main__":
