@@ -1,0 +1,218 @@
+<mxfile host="app.diagrams.net" modified="2026-05-29T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="acs-lab4-control-unit-hardware" name="ControlUnit">
+    <mxGraphModel dx="1800" dy="980" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Control Unit: microcoded controller + two-instruction superscalar issue" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontStyle=1;fontSize=18" vertex="1" parent="1">
+          <mxGeometry x="260" y="15" width="1180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="fetch" value="FETCH BLOCK&lt;br&gt;mem[PC] -&gt; IR&lt;br&gt;PC += 4&lt;br&gt;read operand_count words" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="625" y="70" width="170" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="fetch_signals" value="PC_INC&lt;br&gt;MAR_SET&lt;br&gt;MEM_READ_WORD&lt;br&gt;IR_SET / OBUF_SET" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="835" y="80" width="150" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="operand_counter" value="OPERAND COUNTER&lt;br&gt;from IR[15:8]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="620" y="215" width="170" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="decode" value="DECODE&lt;br&gt;opcode -&gt; microprogram entry&lt;br&gt;operand mode decode" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="620" y="315" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="opcode_rom" value="OPCODE DISPATCH TABLE&lt;br&gt;NOP..SSOFF -&gt; microcode address&lt;br&gt;CISC POLY has variable operand count" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="865" y="315" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="mpc_mux" value="MUX&lt;br&gt;MPC IN" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffffff;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="335" y="315" width="95" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="mpc" value="MPC&lt;br&gt;microprogram counter" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="465" y="320" width="105" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="micro_rom" value="MICROCODE ROM&lt;br&gt;FETCH_HEADER common cycle&lt;br&gt;READ_LEFT / ALU_* / WRITE_BACK / UPDATE_FLAGS&lt;br&gt;READ_TARGET / EVALUATE_BRANCH&lt;br&gt;CISC_POLY_EVALUATE&lt;br&gt;SET_SUPERSCALAR_ON/OFF" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="345" y="460" width="315" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="mir" value="MIR&lt;br&gt;current microinstruction" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="705" y="505" width="145" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="signal_dec" value="CONTROL SIGNAL DECODER&lt;br&gt;latch/mux/ALU/memory/writeback signals" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="900" y="480" width="220" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="signals" value="TO DATAPATH&lt;br&gt;PC_SET, PC_INC, IR_SET, OBUF_SET&lt;br&gt;MAR_SET, MDR_SET, MEM_RD, MEM_WR&lt;br&gt;MUX_SEL, RF_RD, RF_WR, ALU_OP&lt;br&gt;FLAGS_SET, SP_INC, SP_DEC, HALT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1195" y="460" width="300" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="state_machine" value="SM&lt;br&gt;microstep scheduler&lt;br&gt;FETCH_HEADER -&gt; FETCH_OPERAND* -&gt; DECODE -&gt; uOPS -&gt; COMMIT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="75" y="455" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="branch" value="BRANCH CONDITION&lt;br&gt;JMP or flags match&lt;br&gt;Z / N / G / C" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="900" y="670" width="180" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="or" value="OR" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1120" y="690" width="70" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_load" value="PC_LOAD&lt;br&gt;branch / call / ret" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="1225" y="690" width="150" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="halt" value="HALT STATE&lt;br&gt;HALT instruction&lt;br&gt;input exhausted&lt;br&gt;max ticks" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="1225" y="790" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="fetch2" value="PEEK NEXT INSTRUCTION&lt;br&gt;read header + operands at PC&lt;br&gt;does not commit state" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="75" y="85" width="190" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="eligible" value="ELIGIBILITY CHECK&lt;br&gt;MOV, ADD, SUB, MUL, DIV, MOD, LOADB&lt;br&gt;no MMIO, no MEM_REG, no SP/BP/PC/FLAGS/ACC" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="75" y="215" width="245" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="deps" value="DEPENDENCY CHECK&lt;br&gt;build read/write sets&lt;br&gt;REG, MEM, FLAGS&lt;br&gt;block RAW / WAR / WAW" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="75" y="355" width="245" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="pair_valid" value="PAIR_VALID" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="365" y="220" width="110" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="slot0" value="DECODER / EXECUTOR / WRITER 0&lt;br&gt;current instruction&lt;br&gt;all opcodes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="350" y="705" width="205" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="slot1" value="DECODER / EXECUTOR / WRITER 1&lt;br&gt;paired instruction&lt;br&gt;eligible opcodes only" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="620" y="705" width="205" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="commit_order" value="COMMIT ORDER CHECK&lt;br&gt;slot 0 before slot 1&lt;br&gt;precise architectural state" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="485" y="835" width="210" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="trace" value="TRACE / COUNTERS&lt;br&gt;tick_count, instruction_count&lt;br&gt;MPC, micro-op, PC, SP, FLAGS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="75" y="725" width="205" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="fetch_to_signals" value="" style="endArrow=classic;html=1;rounded=0" edge="1" parent="1" source="fetch" target="fetch_signals">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fetch_to_counter" value="count" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="fetch" target="operand_counter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="counter_loop" value="while count &gt; 0" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="operand_counter" target="fetch">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="705" y="205" />
+              <mxPoint x="705" y="185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="counter_decode" value="count = 0" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="operand_counter" target="decode">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="decode_dispatch" value="opcode" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="decode" target="opcode_rom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dispatch_mpcmux" value="entry address" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="opcode_rom" target="mpc_mux">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="975" y="430" />
+              <mxPoint x="382" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm_mpcmux" value="next / reset" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="state_machine" target="mpc_mux">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mpcmux_mpc" value="SET" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="mpc_mux" target="mpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mpc_rom" value="address" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="mpc" target="micro_rom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rom_mir" value="microinstruction" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="micro_rom" target="mir">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mir_signal" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2" edge="1" parent="1" source="mir" target="signal_dec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="signal_bus" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2" edge="1" parent="1" source="signal_dec" target="signals">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="decode_peek" value="at DECODE" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="decode" target="fetch2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="625" y="290" />
+              <mxPoint x="170" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="peek_eligible" value="current + next" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="fetch2" target="eligible">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eligible_deps" value="eligible" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="eligible" target="deps">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="deps_pair" value="independent" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="deps" target="pair_valid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pair_slot1" value="issue slot 1" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="pair_valid" target="slot1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="665" />
+              <mxPoint x="725" y="665" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="decode_slot0" value="issue slot 0" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="decode" target="slot0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="665" />
+              <mxPoint x="455" y="665" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="slot0_commit" value="READY" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="slot0" target="commit_order">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="slot1_commit" value="READY" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="slot1" target="commit_order">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="commit_signal" value="COMMIT" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="commit_order" target="signals">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="590" y="945" />
+              <mxPoint x="1520" y="945" />
+              <mxPoint x="1520" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flags_branch" value="flags + branch opcode" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="decode" target="branch">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="645" />
+              <mxPoint x="990" y="645" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="branch_or" value="taken" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="branch" target="or">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="or_pc" value="" style="endArrow=classic;html=1;rounded=0" edge="1" parent="1" source="or" target="pc_load">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pc_signal" value="" style="endArrow=classic;html=1;rounded=0" edge="1" parent="1" source="pc_load" target="signals">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="halt_signal" value="halt" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="halt" target="signals">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sm_fetch" value="empty queue" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="state_machine" target="fetch">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="175" y="115" />
+              <mxPoint x="625" y="115" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="mir_sm" value="COMMIT / HALT / next uOp" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="mir" target="state_machine">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="705" y="640" />
+              <mxPoint x="175" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="trace_edge" value="log micro-op" style="endArrow=classic;html=1;rounded=0;fontSize=10" edge="1" parent="1" source="state_machine" target="trace">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

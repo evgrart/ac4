@@ -208,6 +208,20 @@ FETCH_HEADER -> FETCH_OPERAND* -> DECODE -> microprogram -> COMMIT
 Журнал процессора содержит номер такта, микропрограммный счетчик, текущий микрошаг, `PC`, `SP`, флаги и часть
 регистрового файла.
 
+### Схемы Процессора
+
+Исходники схем для draw.io:
+
+- [DataPath](img/datapath.drawio) -- единая память команд и данных, memory-mapped I/O, регистровый файл, ALU,
+  стековый адресатор, блок `POLY` и шины данных/адреса.
+- [Control Unit](img/control_unit.drawio) -- микротактовый автомат выборки, декодирования, исполнения микрокоманд,
+  выбора микропрограммы и superscalar-выдачи независимой пары команд.
+
+Основные управляющие сигналы: `mem_read_word`, `mem_read_byte`, `mem_write_word`, `mem_write_byte`, `pc_inc`,
+`pc_load`, `ir_load`, `reg_read`, `reg_write`, `alu_op`, `flags_write`, `sp_inc`, `sp_dec`, `halt`,
+`superscalar_on`, `superscalar_off`. Регистры данных: `R0..R7`, `SP`, `BP`, `PC`, `FLAGS`, `ACC`; служебные
+регистры управления: `IR`, `MPC`, буфер операндов и защелка парной инструкции для superscalar-режима.
+
 ### Таблица Микропрограмм
 
 | Команды | Микропрограмма |
